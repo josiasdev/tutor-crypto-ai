@@ -1,0 +1,17 @@
+# Ambientes Virtuais
+venv/
+env/
+.venv/
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# Banco de dados vetorial (ChromaDB)
+crypto_db/
+
+# Arquivos de ambiente
+.env
+
+# Documentos PDF (caso você não queira subir os livros/artigos pro GitHub)
+data/
