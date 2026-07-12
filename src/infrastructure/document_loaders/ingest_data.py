@@ -34,6 +34,10 @@ def criar_banco_vetorial():
     )
     chunks = text_splitter.split_documents(documentos)
     
+    # Sanitiza os textos para evitar UnicodeEncodeError com caracteres estranhos de PDFs
+    for chunk in chunks:
+        chunk.page_content = chunk.page_content.encode('utf-8', 'replace').decode('utf-8')
+        
     print(f"Documentos divididos em {len(chunks)} fragmentos (chunks).")
     print("Gerando embeddings e salvando no ChromaDB. Isso pode levar alguns instantes...")
 
