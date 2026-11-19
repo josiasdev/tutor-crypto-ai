@@ -1,3 +1,8 @@
+def get_clean_styles() -> str:
+    """Alias retrocompatível para get_theme_styles com modo claro padrão."""
+    return get_theme_styles(is_dark=False)
+
+
 def get_theme_styles(is_dark: bool = False) -> str:
     """Gera regras de CSS com suporte a Modo Claro e Modo Escuro sem quebrar o botão de toggle da sidebar."""
     if is_dark:
