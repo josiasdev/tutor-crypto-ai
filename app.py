@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-from src.presentation.styles import get_clean_styles
+from src.presentation.styles import get_theme_styles
 from src.presentation.components import (
     render_top_meta_bar,
     render_welcome_and_quick_prompts,
@@ -19,10 +19,13 @@ st.set_page_config(
 
 API_BASE_URL = "http://localhost:8000"
 API_CHAT_URL = f"{API_BASE_URL}/api/v1/chat"
-API_HEALTH_URL = f"{API_BASE_URL}/health"
 
-# Injeta CSS de tema limpo
-st.markdown(get_clean_styles(), unsafe_allow_html=True)
+# --- GERENCIAMENTO DO MODO CLARO / ESCURO ---
+if "dark_mode" not in st.session_state:
+    st.session_state.dark_mode = False
+
+# Injeta CSS dinâmico respeitando o modo claro/escuro e mantendo o botão da sidebar visível
+st.markdown(get_theme_styles(is_dark=st.session_state.dark_mode), unsafe_allow_html=True)
 
 # --- BARRA LATERAL (NAVEGAÇÃO E CONFIGURAÇÃO) ---
 with st.sidebar:
@@ -40,6 +43,13 @@ with st.sidebar:
         ("Iniciante", "Avançado"),
         help="Iniciante: metáforas e linguagem acessível. Avançado: terminologia formal e detalhes de arquitetura.",
     )
+
+    st.markdown('<div class="academic-divider"></div>', unsafe_allow_html=True)
+    st.markdown("### Aparência")
+    modo_label = "Modo Escuro" if not st.session_state.dark_mode else "Modo Claro"
+    if st.button(f"Alternar para {modo_label}", use_container_width=True):
+        st.session_state.dark_mode = not st.session_state.dark_mode
+        st.rerun()
 
     st.markdown('<div class="academic-divider"></div>', unsafe_allow_html=True)
     if st.button("Reiniciar Sessão de Estudo", use_container_width=True):
