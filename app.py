@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 import streamlit as st
 import requests
 from src.presentation.components import (
@@ -11,8 +13,8 @@ st.set_page_config(
     layout="centered",
 )
 
-# URL da nossa API FastAPI
-API_URL = "http://localhost:8000/api/v1/chat"
+# URL da nossa API FastAPI ou fallback para chamada direta do UseCase
+API_URL = "http://127.0.0.1:8000/api/v1/chat"
 
 # --- INTERFACE DO USUÁRIO (UI) ---
 st.title("Tutor IA: Cripto & Blockchain")
@@ -43,6 +45,31 @@ if "pending_prompt" not in st.session_state:
 def submit_prompt(prompt_text: str):
     st.session_state.pending_prompt = prompt_text
     st.rerun()
+
+
+@st.cache_resource
+def get_local_use_case():
+    """Fallback inteligente para executar inferência local sem depender de porta HTTP externa aberta."""
+    from src.infrastructure.rag_service import TutorRAGService
+    from src.application.use_cases import ChatTutorUseCase
+    return ChatTutorUseCase(rag_service=TutorRAGService())
+
+
+def processar_pergunta(pergunta: str, nivel: str) -> str:
+    """Tenta consultar via API FastAPI; se a porta HTTP estiver indisponível, usa o serviço local direto."""
+    try:
+        payload = {"pergunta": pergunta, "nivel": nivel}
+        response = requests.post(API_URL, json=payload, timeout=5)
+        if response.status_code == 200:
+            return response.json()["resposta"]
+    except Exception:
+        pass
+
+    # Execução direta do pipeline RAG caso a porta 8000 esteja ocupada ou fechada
+    use_case = get_local_use_case()
+    from src.application.dtos import ChatRequest
+    resultado = use_case.executar(ChatRequest(pergunta=pergunta, nivel=nivel))
+    return resultado.resposta
 
 
 # Se o chat estiver vazio, exibe as perguntas sugeridas de início rápido
@@ -86,27 +113,15 @@ if prompt_to_process:
         st.markdown(f"**Você**\n\n{prompt_to_process}")
     st.session_state.messages.append({"role": "user", "content": prompt_to_process})
 
-    # 2. Chama a API FastAPI para processar a resposta
+    # 2. Gera a resposta do Tutor (com spinner adaptado)
     with st.chat_message("assistant"):
-        with st.spinner(f"Consultando API (Nível: {nivel_selecionado})..."):
+        with st.spinner(f"Consultando materiais do corpus (Nível: {nivel_selecionado})..."):
             try:
-                payload = {
-                    "pergunta": prompt_to_process,
-                    "nivel": nivel_selecionado,
-                }
-                response = requests.post(API_URL, json=payload, timeout=60)
-
-                if response.status_code == 200:
-                    dados = response.json()
-                    texto_resposta = dados["resposta"]
-                    st.markdown(f"**Tutor**\n\n{texto_resposta}")
-                    st.session_state.messages.append(
-                        {"role": "assistant", "content": texto_resposta}
-                    )
-                    st.rerun()
-                else:
-                    st.error(f"Erro na API: {response.status_code} - {response.text}")
-            except requests.exceptions.RequestException:
-                st.error(
-                    "Não foi possível conectar à API. Verifique se o servidor FastAPI (uvicorn) está rodando em localhost:8000."
+                texto_resposta = processar_pergunta(prompt_to_process, nivel_selecionado)
+                st.markdown(f"**Tutor**\n\n{texto_resposta}")
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": texto_resposta}
                 )
+                st.rerun()
+            except Exception as e:
+                st.error(f"Erro ao processar consulta: {str(e)}")
