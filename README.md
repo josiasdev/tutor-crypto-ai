@@ -45,6 +45,7 @@ O sistema adapta dinamicamente a profundidade pedagógica das explicações (ent
 Os documentos indexados no ChromaDB estão disponíveis em uma pasta pública do Google Drive (permissão: qualquer pessoa com o link pode visualizar), para que a banca examinadora audite exatamente as fontes utilizadas:
 
 **Pasta no Google Drive:** `Corpus_RAG_Tutor_Blockchain_Criptomoedas_PTBR`
+
 **Link:** https://drive.google.com/drive/folders/1SmvehVVuuy3lIpNitD3cV0lAm22S09CX
 
 ```text
