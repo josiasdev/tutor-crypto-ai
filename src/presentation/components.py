@@ -3,21 +3,15 @@ from typing import Callable, List
 from src.application.study_suggestions import get_initial_prompts, get_continuation_prompts
 
 
-def render_top_meta_bar(nivel: str, api_online: bool) -> None:
+def render_top_meta_bar(nivel: str) -> None:
     """Exibe barra de status superior com metadados sem emojis."""
-    status_class = "badge-online" if api_online else "badge-offline"
-    status_text = "API Conectada" if api_online else "API Indisponível"
-
     html = f"""
     <div class="top-badge-container">
         <div class="top-badge-item">
             <strong>Tutor Crypto AI</strong> | Ambiente de Aprendizagem
         </div>
         <div class="top-badge-item">
-            <span>Perfil: <strong>{nivel}</strong></span>
-            <span>|</span>
-            <span class="badge-indicator {status_class}"></span>
-            <span>{status_text}</span>
+            <span>Perfil didático: <strong>{nivel}</strong></span>
         </div>
     </div>
     """

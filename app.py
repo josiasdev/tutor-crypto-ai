@@ -24,17 +24,6 @@ API_HEALTH_URL = f"{API_BASE_URL}/health"
 # Injeta CSS de tema limpo
 st.markdown(get_clean_styles(), unsafe_allow_html=True)
 
-
-def check_api_status() -> bool:
-    try:
-        resp = requests.get(API_HEALTH_URL, timeout=1.5)
-        return resp.status_code == 200
-    except requests.exceptions.RequestException:
-        return False
-
-
-api_online = check_api_status()
-
 # --- BARRA LATERAL (NAVEGAÇÃO E CONFIGURAÇÃO) ---
 with st.sidebar:
     st.markdown("### Navegação")
@@ -72,7 +61,7 @@ def submit_prompt(prompt_text: str):
 
 
 # --- CORPO PRINCIPAL ---
-render_top_meta_bar(nivel=nivel_selecionado, api_online=api_online)
+render_top_meta_bar(nivel=nivel_selecionado)
 
 if menu_selecionado == "Sobre o Projeto":
     render_about_page()
